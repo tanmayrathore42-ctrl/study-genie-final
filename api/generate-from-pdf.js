@@ -1,4 +1,4 @@
-// File: api/generate-from-pdf.js (FINAL ROBUST VERSION)
+// File: api/generate-from-pdf.js (FINAL UNIFIED VERSION)
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import pdf from 'pdf-parse';
@@ -15,7 +15,6 @@ const groq = new OpenAI({
     baseURL: 'https://api.groq.com/openai/v1',
 });
 
-// This is a helper function to find JSON within a larger string
 function extractJson(str) {
     const jsonStart = str.indexOf('{');
     const jsonEnd = str.lastIndexOf('}');
@@ -24,7 +23,6 @@ function extractJson(str) {
     }
     return str.substring(jsonStart, jsonEnd + 1);
 }
-
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -67,12 +65,9 @@ export default async function handler(req, res) {
         });
         
         const rawContent = completion.choices[0].message.content;
-
-        // Use our new robust function to find the JSON
         const jsonString = extractJson(rawContent);
 
         if (!jsonString) {
-            // If we can't find JSON, throw an error.
             console.error("Failed to find JSON in AI response:", rawContent);
             throw new Error("AI did not return valid JSON.");
         }
@@ -81,7 +76,7 @@ export default async function handler(req, res) {
         res.status(200).json(resultJson);
 
     } catch (error) {
-        console.error('Server Error:', error);
+        console.error('Server Error in generate-from-pdf:', error);
         res.status(500).json({ error: 'Failed to process PDF.' });
     }
 }

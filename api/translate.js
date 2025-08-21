@@ -1,12 +1,12 @@
-// File: api/translate.js (FINAL CORRECTED VERSION)
-const OpenAI = require('openai'); // <-- The curly braces {} are removed. This is the fix.
+// File: api/translate.js (FINAL UNIFIED VERSION)
+import OpenAI from 'openai';
 
 const groq = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
     baseURL: 'https://api.groq.com/openai/v1',
 });
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).send({ message: 'Only POST requests allowed' });
     }

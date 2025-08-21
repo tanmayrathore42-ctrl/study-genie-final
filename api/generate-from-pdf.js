@@ -1,3 +1,4 @@
+// File: api/generate-from-pdf.js (UPDATED FOR GROQ)
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import pdf from 'pdf-parse';
@@ -9,9 +10,12 @@ export const config = {
     },
 };
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+// --- THIS BLOCK IS THE MAIN CHANGE ---
+const groq = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY, // Using the new Groq key
+    baseURL: 'https://api.groq.com/openai/v1', // Pointing to Groq's servers
 });
+// ------------------------------------
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -20,7 +24,6 @@ export default async function handler(req, res) {
 
     try {
         const form = new IncomingForm();
-
         const data = await new Promise((resolve, reject) => {
             form.parse(req, (err, fields, files) => {
                 if (err) return reject(err);
@@ -36,7 +39,7 @@ export default async function handler(req, res) {
         const fileBuffer = fs.readFileSync(pdfFile.filepath);
         const pdfData = await pdf(fileBuffer);
         const text = pdfData.text;
-
+        
         const prompt = `
             Based on the following text from a PDF, generate a study guide.
             Provide the output in a single, clean JSON object.
@@ -44,13 +47,13 @@ export default async function handler(req, res) {
             - The "summary" should be a concise 2-3 sentence paragraph.
             - The "quiz" should be an array of 3 multiple-choice questions. Each question object should have "question", "options" (an array of 4 strings), and "correctAnswer".
             - The "flashcards" should be an array of 4 objects. Each object should have a "front" (a key term or question) and a "back" (the definition or answer).
-            Do not include any text outside of the JSON object.
-
-            Text: "${text.substring(0, 15000)}"
+            You must only respond with the JSON object, and nothing else.
+            
+            Text: "${text.substring(0, 8000)}"
         `;
 
-        const completion = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
+        const completion = await groq.chat.completions.create({
+            model: "llama3-8b-8192", // Using a model available on Groq
             messages: [{ role: "user", content: prompt }],
             response_format: { type: "json_object" },
         });

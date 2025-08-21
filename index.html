@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyGenie ✨ by Team Null Pointer Exception</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="container">
+        <h1 class="hero-title">StudyGenie ✨</h1>
+        <p>Upload your study notes and let the genie work its magic!</p>
+
+        <form id="input-form">
+            <label for="pdf-file">Upload your PDF notes</label>
+            <input type="file" id="pdf-input" name="pdf-file" accept=".pdf" required>
+            <button type="submit" id="generate-btn">Generate Study Guide</button>
+        </form>
+
+        <div id="results-container" class="hidden">
+            <div id="loading" class="hidden">
+                <p aria-busy="true">Generating your study guide from the PDF, please wait...</p>
+            </div>
+
+            <article id="output">
+                <h2>Summary</h2>
+                <p id="summary-output"></p>
+                <div id="translate-controls" class="hidden">
+                    <select id="language-select">
+                        <option value="Marathi">Marathi</option>
+                        <option value="Hindi">Hindi</option>
+                    </select>
+                    <button id="translate-btn">Translate Summary</button>
+                </div>
+
+                <h2 style="margin-top: 2rem;">Quiz Questions</h2>
+                <div id="quiz-output"></div>
+
+                <h2 style="margin-top: 2rem;">Flashcards</h2>
+                <p><em>Click a card to flip it!</em></p>
+                <div id="flashcards-container"></div>
+            </article>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

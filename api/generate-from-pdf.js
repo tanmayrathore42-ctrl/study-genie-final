@@ -1,14 +1,8 @@
-// File: api/generate-from-pdf.js (FINAL UNIFIED VERSION)
-import { IncomingForm } from 'formidable';
-import fs from 'fs';
-import pdf from 'pdf-parse';
-import OpenAI from 'openai';
-
-export const config = {
-    api: {
-        bodyParser: false,
-    },
-};
+// File: api/generate-from-pdf.js (FINAL CORRECTED VERSION)
+const { IncomingForm } = require('formidable');
+const fs = require('fs');
+const pdf = require('pdf-parse');
+const OpenAI = require('openai'); // Correct require syntax
 
 const groq = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
@@ -24,7 +18,15 @@ function extractJson(str) {
     return str.substring(jsonStart, jsonEnd + 1);
 }
 
-export default async function handler(req, res) {
+// Use module.exports for CommonJS
+module.exports = async (req, res) => {
+    // This config needs to be inside the handler for Vercel + CommonJS
+    const config = {
+        api: {
+            bodyParser: false,
+        },
+    };
+
     if (req.method !== 'POST') {
         return res.status(405).send({ message: 'Only POST requests allowed' });
     }
@@ -79,4 +81,4 @@ export default async function handler(req, res) {
         console.error('Server Error in generate-from-pdf:', error);
         res.status(500).json({ error: 'Failed to process PDF.' });
     }
-}
+};

@@ -1,12 +1,13 @@
-// File: api/translate.js (FINAL UNIFIED VERSION)
-import OpenAI from 'openai';
+// File: api/translate.js (FINAL CORRECTED VERSION)
+const OpenAI = require('openai'); // Correct require syntax
 
 const groq = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
     baseURL: 'https://api.groq.com/openai/v1',
 });
 
-export default async function handler(req, res) {
+// Use module.exports for CommonJS
+module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).send({ message: 'Only POST requests allowed' });
     }

@@ -1,12 +1,10 @@
-// File: api/translate.js (UPDATED FOR GROQ)
+// File: api/translate.js (IMPROVED PROMPT)
 import OpenAI from 'openai';
 
-// --- THIS BLOCK IS THE MAIN CHANGE ---
 const groq = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY, // Using the new Groq key
-    baseURL: 'https://api.groq.com/openai/v1', // Pointing to Groq's servers
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: '[https://api.groq.com/openai/v1](https://api.groq.com/openai/v1)',
 });
-// ------------------------------------
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -20,10 +18,11 @@ export default async function handler(req, res) {
     }
 
     try {
-        const prompt = `Translate the following text into ${language}. Only return the translated text, nothing else.\n\nText: "${text}"`;
+        // A more strict prompt for better results
+        const prompt = `You are a direct translation engine. Your only task is to translate the following text into ${language}. Do not add any commentary, explanation, or any text other than the translation itself.\n\nText: "${text}"`;
 
         const completion = await groq.chat.completions.create({
-            model: "llama3-8b-8192", // Using a model available on Groq
+            model: "llama3-8b-8192",
             messages: [{ role: "user", content: prompt }],
         });
 

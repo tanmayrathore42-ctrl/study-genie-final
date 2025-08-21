@@ -1,4 +1,4 @@
-// File: api/generate-from-pdf.js (UPDATED FOR GROQ)
+// File: api/generate-from-pdf.js (CORRECTED)
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import pdf from 'pdf-parse';
@@ -10,12 +10,10 @@ export const config = {
     },
 };
 
-// --- THIS BLOCK IS THE MAIN CHANGE ---
 const groq = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY, // Using the new Groq key
-    baseURL: 'https://api.groq.com/openai/v1', // Pointing to Groq's servers
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: 'https://api.groq.com/openai/v1',
 });
-// ------------------------------------
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -53,12 +51,20 @@ export default async function handler(req, res) {
         `;
 
         const completion = await groq.chat.completions.create({
-            model: "llama3-8b-8192", // Using a model available on Groq
+            model: "llama3-8b-8192",
             messages: [{ role: "user", content: prompt }],
-            response_format: { type: "json_object" },
+            // THIS LINE HAS BEEN REMOVED - THIS WAS THE ERROR
+            // response_format: { type: "json_object" }, 
         });
 
-        const resultJson = JSON.parse(completion.choices[0].message.content);
+        // Sometimes the model might still wrap the JSON in ```json ... ```
+        // This code cleans it up just in case.
+        let content = completion.choices[0].message.content;
+        if (content.startsWith('```json')) {
+            content = content.substring(7, content.length - 3).trim();
+        }
+
+        const resultJson = JSON.parse(content);
         res.status(200).json(resultJson);
 
     } catch (error) {

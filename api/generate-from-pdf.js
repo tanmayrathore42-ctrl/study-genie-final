@@ -1,4 +1,4 @@
-// File: api/generate-from-pdf.js (CORRECTED)
+// File: api/generate-from-pdf.js (FINAL ROBUST VERSION)
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import pdf from 'pdf-parse';
@@ -14,6 +14,17 @@ const groq = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
     baseURL: 'https://api.groq.com/openai/v1',
 });
+
+// This is a helper function to find JSON within a larger string
+function extractJson(str) {
+    const jsonStart = str.indexOf('{');
+    const jsonEnd = str.lastIndexOf('}');
+    if (jsonStart === -1 || jsonEnd === -1) {
+        return null;
+    }
+    return str.substring(jsonStart, jsonEnd + 1);
+}
+
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -53,18 +64,20 @@ export default async function handler(req, res) {
         const completion = await groq.chat.completions.create({
             model: "llama3-8b-8192",
             messages: [{ role: "user", content: prompt }],
-            // THIS LINE HAS BEEN REMOVED - THIS WAS THE ERROR
-            // response_format: { type: "json_object" }, 
         });
+        
+        const rawContent = completion.choices[0].message.content;
 
-        // Sometimes the model might still wrap the JSON in ```json ... ```
-        // This code cleans it up just in case.
-        let content = completion.choices[0].message.content;
-        if (content.startsWith('```json')) {
-            content = content.substring(7, content.length - 3).trim();
+        // Use our new robust function to find the JSON
+        const jsonString = extractJson(rawContent);
+
+        if (!jsonString) {
+            // If we can't find JSON, throw an error.
+            console.error("Failed to find JSON in AI response:", rawContent);
+            throw new Error("AI did not return valid JSON.");
         }
 
-        const resultJson = JSON.parse(content);
+        const resultJson = JSON.parse(jsonString);
         res.status(200).json(resultJson);
 
     } catch (error) {

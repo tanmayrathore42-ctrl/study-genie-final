@@ -1,12 +1,12 @@
-// File: api/translate.js (IMPROVED PROMPT)
-import OpenAI from 'openai';
+// File: api/translate.js (FINAL CORRECTED VERSION)
+const OpenAI = require('openai'); // <-- The curly braces {} are removed. This is the fix.
 
 const groq = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
-    baseURL: '[https://api.groq.com/openai/v1](https://api.groq.com/openai/v1)',
+    baseURL: 'https://api.groq.com/openai/v1',
 });
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).send({ message: 'Only POST requests allowed' });
     }
@@ -18,7 +18,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        // A more strict prompt for better results
         const prompt = `You are a direct translation engine. Your only task is to translate the following text into ${language}. Do not add any commentary, explanation, or any text other than the translation itself.\n\nText: "${text}"`;
 
         const completion = await groq.chat.completions.create({

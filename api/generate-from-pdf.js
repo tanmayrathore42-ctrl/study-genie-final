@@ -2,7 +2,16 @@
 const { IncomingForm } = require('formidable');
 const fs = require('fs');
 const pdf = require('pdf-parse');
-const OpenAI = require('openai'); // Correct require syntax
+const OpenAI = require('openai');
+
+// THIS CONFIG BLOCK MUST BE AT THE TOP LEVEL FOR VERCEL TO SEE IT. THIS IS THE FIX.
+const config = {
+    api: {
+        bodyParser: false,
+    },
+};
+// DO NOT MOVE THIS.
+module.exports.config = config;
 
 const groq = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
@@ -18,15 +27,7 @@ function extractJson(str) {
     return str.substring(jsonStart, jsonEnd + 1);
 }
 
-// Use module.exports for CommonJS
 module.exports = async (req, res) => {
-    // This config needs to be inside the handler for Vercel + CommonJS
-    const config = {
-        api: {
-            bodyParser: false,
-        },
-    };
-
     if (req.method !== 'POST') {
         return res.status(405).send({ message: 'Only POST requests allowed' });
     }
